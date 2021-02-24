@@ -1,0 +1,44 @@
+:root {
+    --global-cell-border: 1px solid #FFA500;
+    --field-cell-size: 30px;
+    --field-cell-border: 1px solid #808080;
+}
+
+table, td, tr {
+    margin: 0;
+    border: 0;
+    border-collapse: collapse;
+}
+
+.main-frame{
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    margin: 100px auto;
+    border: var(--global-cell-border);
+}
+.main-frame__left-frame{
+}
+
+.main-frame__fields {
+    display: flex;
+    flex-direction: row;
+}
+
+.field {
+    display: table;
+    margin: 10px;
+    /*height: 300px;*/
+    /*width: 45%;*/
+    /*width: 300px;*/
+    border: var(--global-cell-border);
+
+}
+
+.field__table-cell{
+    height: var(--field-cell-size);
+    width: var(--field-cell-size);
+    border: var(--field-cell-border);
+    margin: 0;
+}
+
