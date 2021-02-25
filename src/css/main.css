@@ -30,7 +30,7 @@ main {
     display: flex;
     align-items: center;
     height: 80ch;
-    width: 80vw;
+    width: 90vw;
     justify-content: space-around;
     /*margin: 100px auto;*/
     border: var(--global-border);
@@ -43,6 +43,10 @@ main {
 
 .main-frame__right{
     width: 20%;
+}
+
+.direction_row_reverse{
+    flex-direction: row-reverse;
 }
 
 .main-frame__fields {
@@ -67,12 +71,9 @@ main {
 .ships-menu__main {
     flex-grow: 1;
     display: flex;
-    flex-direction: row;
+    /*flex-direction: row;*/
     justify-content: flex-start;
     align-items: center;
-    /*height: 25%;*/
-    /*width: 200px;*/
-
     border: var(--global-border);
 }
 
@@ -82,21 +83,46 @@ main {
     padding: 0  10px;
     /*border: var(--global-border);*/
 }
-.ships-menu__ship {
+.ships-menu__block {
     border: var(--global-border);
     height: 100%;
     width: 90%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.ships-menu__wrapper_h{
+    /*flex-grow: 3;*/
+}
+.ships-menu__wrapper_v{
+    /*flex-grow: 6;*/
+}
+
+.ships-menu__ship_h{
+    /*height: 100%;*/
+    /*width: 30%;*/
+    background: azure;
+}
+
+.ships-menu__ship_v{
+    /*height: 100%;*/
+    /*width: 70%;*/
+    background: azure;
+}
+.ship{
+    background: darkblue;
 }
 
 
 .field{
     display: table;
     border: var(--global-border);
-
 }
 
 .field__table-cell{
-
+    text-align: center;
     height: 2vw;
     width: 2vw;
     border: var(--field-cell-border);

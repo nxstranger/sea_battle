@@ -4,19 +4,27 @@ let ships = [ [4, 1], [3, 2], [2, 3], [1, 4] ]
 
 document.createElement('div')
 
-function drawFrames(shipsArray, target) {
+function drawFrames(shipsArray, target, enemy=false) {
     for (let elem of shipsArray){
         console.log(elem)
 
         let shipsMenuElement = document.createElement('div')
         shipsMenuElement.classList = "ships-menu__main"
+        if (enemy) { shipsMenuElement.classList.add("direction_row_reverse") }
 
         let shipsMenuCounter = document.createElement('div')
         shipsMenuCounter.classList = "ships-menu__counter"
         shipsMenuCounter.innerText = elem[1]
 
         let shipsMenuShip = document.createElement('div')
-        shipsMenuShip.classList = "ships-menu__ship"
+        shipsMenuShip.classList = "ships-menu__block"
+
+
+        if (elem[0] > 1){
+            drawVerticalShip(shipsMenuShip, elem)
+        }
+
+        drawHorizontalShip(shipsMenuShip, elem)
 
         shipsMenuElement.appendChild(shipsMenuCounter)
         shipsMenuElement.appendChild(shipsMenuShip)
@@ -25,10 +33,33 @@ function drawFrames(shipsArray, target) {
 
 }
 
-function drawShip(target, shipParam){
-    let ship = document.createElement('div')
+function drawVerticalShip(targetDiv, shipParam){
+    let wrapper = document.createElement('div')
+    wrapper.classList.add('ships-menu__wrapper_v')
 
+    let shipDiv = document.createElement('div')
+    shipDiv.classList.add('ships-menu__ship_v', 'ship')
+    shipDiv.style.width = "2vw";
+    shipDiv.style.height = (2 * shipParam[0]) + "vw";
+
+
+    wrapper.appendChild(shipDiv)
+    targetDiv.appendChild(wrapper)
+}
+
+function drawHorizontalShip(targetDiv, shipParam){
+    let wrapper = document.createElement('div')
+    wrapper.classList.add('ships-menu__wrapper_h')
+
+    let shipDiv = document.createElement('div')
+    shipDiv.classList.add('ships-menu__ship_h', 'ship')
+    console.log(shipParam)
+    shipDiv.style.width = (2.5*shipParam[0]) + "vw";
+    shipDiv.style.height = "2vw";
+
+    wrapper.appendChild(shipDiv)
+    targetDiv.appendChild(wrapper)
 }
 
 drawFrames(ships, frameRightShips)
-drawFrames(ships, frameLeftShips)
+drawFrames(ships, frameLeftShips, true)
