@@ -9,7 +9,11 @@ for (let elem of fields){
         for (let j = 0; j < 11; j++){
             let tableCell = document.createElement('td')
             tableCell.classList = "field__table-cell"
-            tableCell.id = `${cellName[i]}${j}`
+
+            if (i>0 && j>0) {
+                tableCell.id = `${cellName[i]}${j}`
+            }
+            // tableCell.id = `${cellName[i]}${j}`
             if (i === 0 && j > 0 || j === 0 && i > 0){
 
                 tableCell.innerText = (i === 0) ? j : cellName[i]
