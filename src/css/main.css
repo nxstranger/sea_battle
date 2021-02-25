@@ -10,17 +10,22 @@ body {
     justify-content: space-around;
 }
 header{
+
+    user-select: none;
     height: 10ch;
     text-align: center;
     padding: 1%;
 }
 footer{
+
+    user-select: none;
     height: 10ch;
     text-align: center;
     padding: 1%;
 }
 
 main {
+    user-select: none;
     display: flex;
     flex-direction: row;
     justify-content: space-around;
@@ -35,7 +40,6 @@ main {
     /*margin: 100px auto;*/
     border: var(--global-border);
 }
-
 
 .main-frame__left{
     width: 20%;
@@ -78,9 +82,10 @@ main {
 }
 
 .ships-menu__counter {
-    height: 20%;
+    height: inherit;
     width: 10%;
     padding: 0  10px;
+    user-select: none;
     /*border: var(--global-border);*/
 }
 .ships-menu__block {
@@ -115,6 +120,10 @@ main {
     background: darkblue;
 }
 
+.drag_n_drop{
+    z-index: 5;
+    user-select: text;
+}
 
 .field{
     display: table;
@@ -126,5 +135,6 @@ main {
     height: 2vw;
     width: 2vw;
     border: var(--field-cell-border);
+    user-select: none;
 }
 

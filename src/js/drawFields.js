@@ -1,7 +1,7 @@
 let fields = document.getElementsByClassName("field")
 
 for (let elem of fields){
-    console.log(elem.id)
+    // console.log(elem.id)
     let cellName = "zabcdefghij"
     let tableField = document.createElement('table')
     for (let i = 0; i < 11; i++) {
@@ -9,10 +9,10 @@ for (let elem of fields){
         for (let j = 0; j < 11; j++){
             let tableCell = document.createElement('td')
             tableCell.classList = "field__table-cell"
-            if (true){
-                let cellId = `${cellName[i]}${j}`
-                tableCell.id = cellId
-                tableCell.innerText = cellId
+            tableCell.id = `${cellName[i]}${j}`
+            if (i === 0 && j > 0 || j === 0 && i > 0){
+
+                tableCell.innerText = (i === 0) ? j : cellName[i]
             }
             tableField.lastChild.appendChild(tableCell)
             }

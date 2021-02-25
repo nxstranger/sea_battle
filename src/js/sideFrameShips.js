@@ -6,7 +6,7 @@ document.createElement('div')
 
 function drawFrames(shipsArray, target, enemy=false) {
     for (let elem of shipsArray){
-        console.log(elem)
+        // console.log(elem)
 
         let shipsMenuElement = document.createElement('div')
         shipsMenuElement.classList = "ships-menu__main"
@@ -21,10 +21,9 @@ function drawFrames(shipsArray, target, enemy=false) {
 
 
         if (elem[0] > 1){
-            drawVerticalShip(shipsMenuShip, elem)
+            drawVerticalShip(shipsMenuShip, elem, enemy)
         }
-
-        drawHorizontalShip(shipsMenuShip, elem)
+        drawHorizontalShip(shipsMenuShip, elem, enemy)
 
         shipsMenuElement.appendChild(shipsMenuCounter)
         shipsMenuElement.appendChild(shipsMenuShip)
@@ -33,12 +32,15 @@ function drawFrames(shipsArray, target, enemy=false) {
 
 }
 
-function drawVerticalShip(targetDiv, shipParam){
+function drawVerticalShip(targetDiv, shipParam, enemy=false){
     let wrapper = document.createElement('div')
     wrapper.classList.add('ships-menu__wrapper_v')
 
     let shipDiv = document.createElement('div')
     shipDiv.classList.add('ships-menu__ship_v', 'ship')
+    if (!enemy) {
+        shipDiv.id = `shipV${shipParam[0]}`
+    }
     shipDiv.style.width = "2vw";
     shipDiv.style.height = (2 * shipParam[0]) + "vw";
 
@@ -47,14 +49,18 @@ function drawVerticalShip(targetDiv, shipParam){
     targetDiv.appendChild(wrapper)
 }
 
-function drawHorizontalShip(targetDiv, shipParam){
+function drawHorizontalShip(targetDiv, shipParam, enemy=false){
     let wrapper = document.createElement('div')
     wrapper.classList.add('ships-menu__wrapper_h')
 
     let shipDiv = document.createElement('div')
     shipDiv.classList.add('ships-menu__ship_h', 'ship')
-    console.log(shipParam)
-    shipDiv.style.width = (2.5*shipParam[0]) + "vw";
+    if (!enemy) {
+        shipDiv.id = `shipH${shipParam[0]}`
+    }
+
+
+    shipDiv.style.width = (2 * shipParam[0]) + "vw";
     shipDiv.style.height = "2vw";
 
     wrapper.appendChild(shipDiv)
