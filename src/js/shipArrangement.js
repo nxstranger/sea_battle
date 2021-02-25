@@ -7,32 +7,41 @@ function dragAndDropHandler(ev){
     console.log(ev)
 
     ev.preventDefault()
-    let movedElem = ev.path[0].cloneNode(true)
+    let movedElem = ev.path[0].cloneNode(false)
+
+    let shiftX = ev.clientX - ev.path[0].getBoundingClientRect().left;
+    let shiftY = ev.clientY - ev.path[0].getBoundingClientRect().top;
+
 
     movedElem.style.position = "absolute"
+
     document.body.appendChild(movedElem)
+    movedElem.style.top = ev.clientY + 'px'
+    movedElem.style.left = ev.clientX + 'px'
     console.log(ev)
 
-    let shiftX = ev.clientX - ev.ath[0].getBoundingClientRect().left;
-    let shiftY = ev.clientY - ev.path[0].getBoundingClientRect().top;
+    console.log(`${ev.path[0].getBoundingClientRect().left} ${ev.path[0].getBoundingClientRect().top}`)
+
 
     function moveAt(pageX, pageY) {
         movedElem.style.left = pageX - shiftX + 'px';
         movedElem.style.top = pageY - shiftY + 'px';
+        // movedElem.top = ev.clientY + 'px'
+        // movedElem.left = ev.clientX + 'px'
     }
 
     function onMouseMove(ev) {
         moveAt(ev.pageX, ev.pageY);
     }
 
-    // передвигаем мяч при событии mousemove
     document.addEventListener('mousemove', onMouseMove);
 
-    // отпустить мяч, удалить ненужные обработчики
     movedElem.onmouseup = function() {
         console.log("it not working")
         document.removeEventListener('mousemove', onMouseMove);
         movedElem.onmouseup = null;
+        movedElem.remove()
+        // console.log(movedElem)
     };
 }
 
