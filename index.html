@@ -1,22 +1,22 @@
 <!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <title>Sea battle beta</title>
-    <link type="text/css" rel="stylesheet" href="src/css/main.css">
-</head>
+<html lang="ru">
+    <head>
+        <meta charset="utf-8">
+        <title>Sea battle beta</title>
+        <link type="text/css" rel="stylesheet" href="src/css/resetCss.css">
+        <link type="text/css" rel="stylesheet" href="src/css/main.css">
 
+    </head>
 <body>
 
-<!--    <header>-->
-<!--        <p>-->
-<!--            header-->
-<!--        </p>-->
-<!--    </header>-->
-
-    <main class="main-frame">
-        <div id="left-ships" class="main-frame__left ships">
-
+    <header>
+        <p>
+            header
+        </p>
+    </header>
+    <main>
+        <div class="main-frame">
+        <div id="left-ships" class="main-frame__left ships-menu">
         </div>
         <div class="main-frame__fields">
             <div id="user-field" class="field">
@@ -24,14 +24,18 @@
             <div id="enemy-field" class="field">
             </div>
         </div>
-    </main>
 
-<!--    <footer>-->
-<!--        <p>-->
-<!--            footer-->
-<!--        </p>-->
-<!--    </footer>-->
+
+        <div id="right-ships" class="main-frame__right ships-menu">
+        </div>
+        </div>
+    </main>
+    <footer>
+        <p>
+            footer
+        </p>
+    </footer>
     <script src="src/js/drawFields.js"></script>
-    <script src="src/js/leftFrameShips.js"></script>
+    <script src="src/js/sideFrameShips.js"></script>
 </body>
 </html>

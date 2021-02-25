@@ -2,8 +2,8 @@ let fields = document.getElementsByClassName("field")
 
 for (let elem of fields){
     console.log(elem.id)
-    let tableField = document.createElement('table')
 
+    let tableField = document.createElement('table')
     for (let i = 0; i < 11; i++) {
         tableField.appendChild(document.createElement('tr'))
         for (let j = 0; j < 11; j++){

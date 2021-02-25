@@ -1,44 +1,104 @@
 :root {
-    --global-cell-border: 1px solid #FFA500;
+    --global-border: 1px solid #FFA500;
     --field-cell-size: 30px;
     --field-cell-border: 1px solid #808080;
 }
 
-table, td, tr {
-    margin: 0;
-    border: 0;
-    border-collapse: collapse;
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+}
+header{
+    height: 10ch;
+    text-align: center;
+    padding: 1%;
+}
+footer{
+    height: 10ch;
+    text-align: center;
+    padding: 1%;
 }
 
-.main-frame{
+main {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+}
+
+.main-frame {
     display: flex;
     align-items: center;
+    height: 80ch;
+    width: 80vw;
     justify-content: space-around;
-    margin: 100px auto;
-    border: var(--global-cell-border);
+    /*margin: 100px auto;*/
+    border: var(--global-border);
 }
-.main-frame__left-frame{
+
+
+.main-frame__left{
+    width: 20%;
+}
+
+.main-frame__right{
+    width: 20%;
 }
 
 .main-frame__fields {
+    width: 60%;
     display: flex;
     flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
 }
 
-.field {
+.ships-menu{
+    height: 80%;
+    /*width: 20%;*/
+    display: flex;
+    flex-direction: column;
+    /*align-items: stretch;*/
+    background: grey;
+
+
+}
+
+.ships-menu__main {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    /*height: 25%;*/
+    /*width: 200px;*/
+
+    border: var(--global-border);
+}
+
+.ships-menu__counter {
+    height: 20%;
+    width: 10%;
+    padding: 0  10px;
+    /*border: var(--global-border);*/
+}
+.ships-menu__ship {
+    border: var(--global-border);
+    height: 100%;
+    width: 90%;
+}
+
+
+.field{
     display: table;
-    margin: 10px;
-    /*height: 300px;*/
-    /*width: 45%;*/
-    /*width: 300px;*/
-    border: var(--global-cell-border);
+    border: var(--global-border);
 
 }
 
 .field__table-cell{
-    height: var(--field-cell-size);
-    width: var(--field-cell-size);
+
+    height: 2vw;
+    width: 2vw;
     border: var(--field-cell-border);
-    margin: 0;
 }
 
