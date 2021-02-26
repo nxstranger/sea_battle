@@ -5,19 +5,22 @@ let ships = [ [4, 1], [3, 2], [2, 3], [1, 4] ]
 document.createElement('div')
 
 function drawFrames(shipsArray, target, enemy=false) {
+    let iterator = 5
     for (let elem of shipsArray){
+        iterator--
         // console.log(elem)
-
         let shipsMenuElement = document.createElement('div')
-        shipsMenuElement.classList = "ships-menu__main"
-        if (enemy) { shipsMenuElement.classList.add("direction_row_reverse") }
+        shipsMenuElement.classList = "ships-menu__main";
+        (enemy) ? shipsMenuElement.classList.add("direction_row_reverse"): shipsMenuElement.classList.add("direction_row")
 
         let shipsMenuCounter = document.createElement('div')
         shipsMenuCounter.classList = "ships-menu__counter"
+        shipsMenuCounter.id = !enemy ? `counter-usr-${iterator}` : `counter-enm-${iterator}`
         shipsMenuCounter.innerText = elem[1]
 
         let shipsMenuShip = document.createElement('div')
         shipsMenuShip.classList = "ships-menu__block"
+        shipsMenuShip.id = !enemy ? `block-usr-${iterator}` : `block-enm-${iterator}`
 
 
         if (elem[0] > 1){

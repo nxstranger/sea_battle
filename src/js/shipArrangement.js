@@ -1,12 +1,78 @@
 // let userFieldArray = Array(10).fill(Array(10).fill(0))
 // console.log(userFieldArray)
-let userFieldSet = new Set()
+
+// document.addEventListener('contextmenu', event => event.preventDefault());
+
+
+const userFieldSet = new Set()
+
+class ShipPool{
+    constructor(isUser){
+        this["1"] = 0
+        this["2"] = 0
+        this["3"] = 0
+        this["4"] = 0
+        this.isUser = isUser
+        this.limit = ["",4,3,2,1]
+    }
+
+
+    add(ship){
+        //ship value 1-4
+        // console.log('ship')
+        // console.log(ship)
+        this[ship] = this[ship] + 1
+        // console.log(this)
+        this.updateCounter(ship)
+    }
+
+    updateCounter(ship){
+        //ship value 1-4
+        // console.log('it update a counter')
+        let counterObj = document.getElementById(`counter-usr-${ship}`)
+        counterObj.innerText = this.limit[+ship] - +this[ship]
+        if (this.checkLimit(ship)){
+            // console.log('update counter -> check limit')
+            this.updateShipFrame(ship)
+        }
+        // console.log(counterObj)
+    }
+
+    checkLimit(ship){
+        //ship value 1-4
+        // return true if limit for this type
+        let limit = ["",4,3,2,1]
+        console.log('this[ship] === limit[+ship]')
+        console.log(this[ship])
+        console.log(limit[+ship])
+        return this[ship] === limit[+ship];
+    }
+
+    updateShipFrame(ship){
+        //ship value 1-4
+        console.log("update ship frame")
+        let blockId = this.isUser ? `block-usr-${ship}`: `block-enm-${ship}`
+        for (let objShip of document.getElementById(blockId).childNodes){
+            // console.log("objShip")
+            console.log(objShip)
+            // console.log(objShip.style.background = 'gray')
+            objShip.style.background = 'gray'
+            objShip.style.display = "none"
+            objShip.classList.remove('drag_n_drop')
+        }
+    }
+
+
+}
+
+const userShipPool = new ShipPool(true)
+
 
 function placeShipOnField(objShipInfo, cellObj){
-    let alphabet = "zabcdefghij"                    // z - unused, only for convenience
-    let shipType = objShipInfo.slice(0, 1)          // H or V
-    let shipLength = objShipInfo.slice(1)           // 1-4
-    let startCellCoordinatesObject = {
+    const alphabet = "zabcdefghij"                    // z - unused, only for convenience
+    const shipType = objShipInfo.slice(0, 1)          // H or V
+    const shipLength = objShipInfo.slice(1)           // 1-4
+    const startCellCoordinatesObject = {
         "litY": cellObj.id[4],                      // a-j
         "litX": +cellObj.id.slice(5)                // 1-10
     }
@@ -31,20 +97,15 @@ function placeShipOnField(objShipInfo, cellObj){
         let startIndexX = targetObj.litX
         let startIndexY = alphabet.indexOf(targetObj.litY)
         let cellSet = new Set()
-        // console.log(startIndexX)
-        // console.log(startIndexY)
         for (let iter = 0; iter < shipLength; iter++){
             let cellId = ""
             switch (shipType){
                 case "H":
                     cellId = "usr-" + alphabet[startIndexY] + (startIndexX + iter)
-                    // cellId = document.getElementById(cellId)
-                    // document.getElementById(cellId).style.background = 'cyan'
                     break;
                 case "V":
                     cellId = "usr-" + alphabet[startIndexY + iter] + (startIndexX)
-                    // cellId = document.getElementById(cellId)
-                    // document.getElementById(cellId).style.background = 'cyan'
+
                     break;
                 default:
                     alert("Ошибка в модуле shipArrangement")
@@ -68,20 +129,17 @@ function placeShipOnField(objShipInfo, cellObj){
         let cellId = ""
         for (let elem of cellSet){
             let cell = elem
-            // console.log(elem)
             cellSet.add(cell)
 
             let cellLocate = {
                 "X": +cell.slice(5),                // 1-10
                 "Y": alphabet.indexOf(cell[4])      // 1-10
             }
-            // console.log(cellLocate);
             xMin = xMin < cellLocate.X ? xMin : cellLocate.X
             xMax = xMax > cellLocate.X ? xMax : cellLocate.X
             yMin = yMin < cellLocate.Y ? yMin : cellLocate.Y
             yMax = yMax > cellLocate.Y ? yMax : cellLocate.Y
         }
-        // console.log([xMin, xMax, yMin, yMax])
         let iterRange = {
             "xStart":   xMin > 1 ? xMin - 1 : xMin,
             "xEnd":     xMax < 10 ? xMax + 1 : xMax,
@@ -132,7 +190,7 @@ function placeShipOnField(objShipInfo, cellObj){
         }
     }
 
-    // entrypoint
+    // function entrypoint
     if (checkSize(shipType, shipLength, startCellCoordinatesObject)) {
         console.log('checkSize')
         let shipPositionCellSet = calcShipCells(shipType, shipLength, startCellCoordinatesObject)
@@ -193,11 +251,14 @@ function dragAndDropHandler(ev){
         if (targetObj.classList.contains('field__table-cell') &&
             targetObj.id &&
             (targetObj.closest('div[id]').id === "user-field")){
-            placeShipOnField(shipInfo.slice(4), targetObj)
+            if (placeShipOnField(shipInfo.slice(4), targetObj)){
+                userShipPool.add(shipInfo.slice(5))
+            }
         }
         // console.log("object drop")
     };
 }
+
 
 
 for (let elem of document.getElementsByClassName("ship")){
@@ -207,7 +268,10 @@ for (let elem of document.getElementsByClassName("ship")){
 }
 
 document.body.addEventListener('mousedown', (ev)=>{
-    if (ev.path[0].classList.contains("drag_n_drop")){
+    if (ev.path[0].classList.contains("drag_n_drop") && ev.path[0].style.position === "absolute") {
+        // fix flying elem
+        ev.path[0].remove()
+    } else if (ev.path[0].classList.contains("drag_n_drop")) {
         // console.log("object dragstart ")
         dragAndDropHandler(ev)
     }

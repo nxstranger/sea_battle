@@ -53,6 +53,10 @@ main {
     flex-direction: row-reverse;
 }
 
+.direction_row{
+    flex-direction: row;
+}
+
 .main-frame__fields {
     width: 60%;
     display: flex;
@@ -67,7 +71,7 @@ main {
     display: flex;
     flex-direction: column;
     /*align-items: stretch;*/
-    background: grey;
+    /*background: grey;*/
 
 
 }
@@ -75,10 +79,9 @@ main {
 .ships-menu__main {
     flex-grow: 1;
     display: flex;
-    /*flex-direction: row;*/
     justify-content: flex-start;
     align-items: center;
-    border: var(--global-border);
+    /*border: var(--global-border);*/
 }
 
 .ships-menu__counter {
@@ -89,6 +92,8 @@ main {
     /*border: var(--global-border);*/
 }
 .ships-menu__block {
+    flex-shrink: 1;
+    flex-grow: 1;
     border: var(--global-border);
     height: 100%;
     width: 90%;
