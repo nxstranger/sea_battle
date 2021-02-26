@@ -1,16 +1,18 @@
-let userFieldArray = Array(10).fill(Array(10).fill(0))
-console.log(userFieldArray)
+// let userFieldArray = Array(10).fill(Array(10).fill(0))
+// console.log(userFieldArray)
+let userFieldSet = new Set()
 
 function placeShipOnField(objShipInfo, cellObj){
-    let alphabet = "zabcdefghij"
+    let alphabet = "zabcdefghij"                    // z - unused, only for convenience
     let shipType = objShipInfo.slice(0, 1)          // H or V
     let shipLength = objShipInfo.slice(1)           // 1-4
-    let startCellObject = {
+    let startCellCoordinatesObject = {
         "litY": cellObj.id[4],                      // a-j
         "litX": +cellObj.id.slice(5)                // 1-10
     }
 
     function checkSize(type, length, startCell){
+        // check ship in field range
         if ((type === "V" && alphabet.indexOf(startCell.litY) + +length <= 11) ||
             (type === "H" && startCell.litX + +length <= 11))
         {
@@ -24,12 +26,11 @@ function placeShipOnField(objShipInfo, cellObj){
 
     function calcShipCells(shipType, shipLength, targetObj) {
         // shipType "H" / "V", ship length: int, targetObj: { "litY": char, "litX": int }
-        // return array of cells required for placement ship
+        // return set of cells id required for placement ship
 
         let startIndexX = targetObj.litX
         let startIndexY = alphabet.indexOf(targetObj.litY)
-        let requiredArray = []
-        let neighborsArray = []
+        let cellSet = new Set()
         // console.log(startIndexX)
         // console.log(startIndexY)
         for (let iter = 0; iter < shipLength; iter++){
@@ -37,59 +38,57 @@ function placeShipOnField(objShipInfo, cellObj){
             switch (shipType){
                 case "H":
                     cellId = "usr-" + alphabet[startIndexY] + (startIndexX + iter)
-                    cellId = document.getElementById(cellId)
-                    cellId.style.background = 'cyan'
+                    // cellId = document.getElementById(cellId)
+                    // document.getElementById(cellId).style.background = 'cyan'
                     break;
                 case "V":
                     cellId = "usr-" + alphabet[startIndexY + iter] + (startIndexX)
-                    cellId = document.getElementById(cellId)
-                    cellId.style.background = 'cyan'
+                    // cellId = document.getElementById(cellId)
+                    // document.getElementById(cellId).style.background = 'cyan'
                     break;
                 default:
                     alert("Ошибка в модуле shipArrangement")
             }
             if (cellId){
-                requiredArray.push(cellId)
+                cellSet.add(cellId)
             }
 
         }
-        return requiredArray
+        console.log(cellSet)
+        return cellSet
     }
 
-    if (checkSize(shipType, shipLength, startCellObject)) {
-        console.log('checkSize')
-        let shipPositionCell = calcShipCells(shipType, shipLength, startCellObject)
-        findNeighbors(shipPositionCell)
-    }
-
-    function findNeighbors(cellArr){
-        let neighborsArray = []
+    function findNeighbors(cellSet){
+        // return neighborsSet of cellSet (ship)
         let neighborsSet = new Set()
         let xMin = 10
         let xMax = 0
         let yMin = 10
         let yMax = 0
         let cellId = ""
-        for (let iter = 0; iter < cellArr.length; iter++){
-            let cell = cellArr[iter]
+        for (let elem of cellSet){
+            let cell = elem
+            // console.log(elem)
+            cellSet.add(cell)
+
             let cellLocate = {
-                "X": +cell.id.slice(5),                // 1-10
-                "Y": alphabet.indexOf(cell.id[4])      // 1-10
+                "X": +cell.slice(5),                // 1-10
+                "Y": alphabet.indexOf(cell[4])      // 1-10
             }
-            console.log(cellLocate);
+            // console.log(cellLocate);
             xMin = xMin < cellLocate.X ? xMin : cellLocate.X
             xMax = xMax > cellLocate.X ? xMax : cellLocate.X
             yMin = yMin < cellLocate.Y ? yMin : cellLocate.Y
             yMax = yMax > cellLocate.Y ? yMax : cellLocate.Y
         }
-        console.log([xMin, xMax, yMin, yMax])
+        // console.log([xMin, xMax, yMin, yMax])
         let iterRange = {
-            "xStart": xMin > 1 ? xMin - 1 : xMin,
-            "xEnd":   xMax < 10 ? xMax + 1 : xMax,
+            "xStart":   xMin > 1 ? xMin - 1 : xMin,
+            "xEnd":     xMax < 10 ? xMax + 1 : xMax,
             "yStart":   yMin > 1 ? yMin - 1 : yMin,
-            "yEnd": yMax < 10 ? yMax + 1: yMax
+            "yEnd":     yMax < 10 ? yMax + 1: yMax
         }
-        console.log(iterRange)
+        // console.log(iterRange)
         for (let x = iterRange.xStart; x <= iterRange.xEnd; x++){
             for (let y = iterRange.yStart; y <= iterRange.yEnd; y++){
                 cellId = "usr-" + alphabet[y] + (x)
@@ -97,10 +96,60 @@ function placeShipOnField(objShipInfo, cellObj){
                 neighborsSet.add(cellId)
             }
         }
+        for (let itemSet of cellSet){
+            neighborsSet.delete(itemSet)
+        }
         console.log(neighborsSet)
+        return neighborsSet
     }
-}
 
+    function addToMainSet(subSet){
+        // add to userFieldSet elements of subSet
+        for(let elem of subSet){
+            userFieldSet.add(elem)
+        }
+    }
+
+    function coordinatesToId(xPos,yPos){
+        // args values interval: 1-10
+        // return string cellId like "usr-a10"
+        let yChar = alphabet[yPos]
+        return `usr-${yChar}${xPos}`
+    }
+
+    function checkOccupiedCells(subSet){
+        for (let elem of subSet){
+            if (userFieldSet.has(elem)) {
+                return true
+            }
+        }
+        return false
+    }
+
+    function shipPlacement(cellSet){
+        for (let elem of cellSet){
+            document.getElementById(elem).style.background = 'cyan'
+        }
+    }
+
+    // entrypoint
+    if (checkSize(shipType, shipLength, startCellCoordinatesObject)) {
+        console.log('checkSize')
+        let shipPositionCellSet = calcShipCells(shipType, shipLength, startCellCoordinatesObject)
+        if (checkOccupiedCells(shipPositionCellSet)){
+            return false
+        }
+        let shipNeighborsSet = findNeighbors(shipPositionCellSet)
+
+        addToMainSet(shipPositionCellSet)
+        addToMainSet(shipNeighborsSet)
+        console.log(userFieldSet)
+
+        shipPlacement(shipPositionCellSet)
+        return true
+    }
+
+}
 
 function dragAndDropHandler(ev){
     // console.log(ev.path[0])
@@ -121,6 +170,7 @@ function dragAndDropHandler(ev){
         movedElem.style.top = pageY - shiftY + 'px';
         movedElem.style.left = pageX - shiftX + 'px';
     }
+
     function onMouseMove(ev) {
         moveAt(ev.pageX, ev.pageY);
     }
