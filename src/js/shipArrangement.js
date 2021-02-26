@@ -1,7 +1,104 @@
+let userFieldArray = Array(10).fill(Array(10).fill(0))
+console.log(userFieldArray)
 
 function placeShipOnField(objShipInfo, cellObj){
-    console.log(objShipInfo)
-    console.log(cellObj)
+    let alphabet = "zabcdefghij"
+    let shipType = objShipInfo.slice(0, 1)          // H or V
+    let shipLength = objShipInfo.slice(1)           // 1-4
+    let startCellObject = {
+        "litY": cellObj.id[4],                      // a-j
+        "litX": +cellObj.id.slice(5)                // 1-10
+    }
+
+    function checkSize(type, length, startCell){
+        if ((type === "V" && alphabet.indexOf(startCell.litY) + +length <= 11) ||
+            (type === "H" && startCell.litX + +length <= 11))
+        {
+            console.log("size OK")
+            return true
+        } else {
+            console.log("size error")
+            return false
+        }
+    }
+
+    function calcShipCells(shipType, shipLength, targetObj) {
+        // shipType "H" / "V", ship length: int, targetObj: { "litY": char, "litX": int }
+        // return array of cells required for placement ship
+
+        let startIndexX = targetObj.litX
+        let startIndexY = alphabet.indexOf(targetObj.litY)
+        let requiredArray = []
+        let neighborsArray = []
+        // console.log(startIndexX)
+        // console.log(startIndexY)
+        for (let iter = 0; iter < shipLength; iter++){
+            let cellId = ""
+            switch (shipType){
+                case "H":
+                    cellId = "usr-" + alphabet[startIndexY] + (startIndexX + iter)
+                    cellId = document.getElementById(cellId)
+                    cellId.style.background = 'cyan'
+                    break;
+                case "V":
+                    cellId = "usr-" + alphabet[startIndexY + iter] + (startIndexX)
+                    cellId = document.getElementById(cellId)
+                    cellId.style.background = 'cyan'
+                    break;
+                default:
+                    alert("Ошибка в модуле shipArrangement")
+            }
+            if (cellId){
+                requiredArray.push(cellId)
+            }
+
+        }
+        return requiredArray
+    }
+
+    if (checkSize(shipType, shipLength, startCellObject)) {
+        console.log('checkSize')
+        let shipPositionCell = calcShipCells(shipType, shipLength, startCellObject)
+        findNeighbors(shipPositionCell)
+    }
+
+    function findNeighbors(cellArr){
+        let neighborsArray = []
+        let neighborsSet = new Set()
+        let xMin = 10
+        let xMax = 0
+        let yMin = 10
+        let yMax = 0
+        let cellId = ""
+        for (let iter = 0; iter < cellArr.length; iter++){
+            let cell = cellArr[iter]
+            let cellLocate = {
+                "X": +cell.id.slice(5),                // 1-10
+                "Y": alphabet.indexOf(cell.id[4])      // 1-10
+            }
+            console.log(cellLocate);
+            xMin = xMin < cellLocate.X ? xMin : cellLocate.X
+            xMax = xMax > cellLocate.X ? xMax : cellLocate.X
+            yMin = yMin < cellLocate.Y ? yMin : cellLocate.Y
+            yMax = yMax > cellLocate.Y ? yMax : cellLocate.Y
+        }
+        console.log([xMin, xMax, yMin, yMax])
+        let iterRange = {
+            "xStart": xMin > 1 ? xMin - 1 : xMin,
+            "xEnd":   xMax < 10 ? xMax + 1 : xMax,
+            "yStart":   yMin > 1 ? yMin - 1 : yMin,
+            "yEnd": yMax < 10 ? yMax + 1: yMax
+        }
+        console.log(iterRange)
+        for (let x = iterRange.xStart; x <= iterRange.xEnd; x++){
+            for (let y = iterRange.yStart; y <= iterRange.yEnd; y++){
+                cellId = "usr-" + alphabet[y] + (x)
+                // cellId = document.getElementById(cellId)
+                neighborsSet.add(cellId)
+            }
+        }
+        console.log(neighborsSet)
+    }
 }
 
 
@@ -26,34 +123,29 @@ function dragAndDropHandler(ev){
     }
     function onMouseMove(ev) {
         moveAt(ev.pageX, ev.pageY);
-        // console.log(`${ev.pageX} ${ev.pageY}`)
     }
+
     document.addEventListener('mousemove', onMouseMove);
 
     movedElem.onmouseup = function(ev) {
         document.removeEventListener('mousemove', onMouseMove);
         movedElem.onmouseup = null;
-        let shopInfo = {
-            "id": movedElem.id,
-            "offsetX": shiftX,
-            "offsetY": shiftY,
-            "wv": window.innerWidth/100
-        }
-        let targetObject = {
+
+        let shipInfo = movedElem.id
+        let targetCoordinates = {
             "x": movedElem.getBoundingClientRect().left + window.innerWidth/100,
             "y": movedElem.getBoundingClientRect().top + window.innerWidth/100
         }
-
-        // [movedElem.id, shiftX, shiftY, window.innerWidth/100]
         movedElem.remove()
 
-        console.log(document.elementFromPoint(targetObject.x, targetObject.y))
+        let targetObj =  document.elementFromPoint(targetCoordinates.x, targetCoordinates.y)
 
-        // console.log(ev.pageX)
-        // console.log(ev.pageY)
-        // console.log(shopInfo)
-        // console.log(document.elementFromPoint(ev.pageX, ev.pageY))
-        // placeShipOnField(shopInfo, document.elementFromPoint(ev.pageX, ev.pageY))
+        if (targetObj.classList.contains('field__table-cell') &&
+            targetObj.id &&
+            (targetObj.closest('div[id]').id === "user-field")){
+            placeShipOnField(shipInfo.slice(4), targetObj)
+        }
+        // console.log("object drop")
     };
 }
 
@@ -65,14 +157,9 @@ for (let elem of document.getElementsByClassName("ship")){
 }
 
 document.body.addEventListener('mousedown', (ev)=>{
-    // ev.preventDefault()
-    // console.log(ev.path[0].classList)
     if (ev.path[0].classList.contains("drag_n_drop")){
-        console.log("object has dragstart ")
+        // console.log("object dragstart ")
         dragAndDropHandler(ev)
-    } else {
-
     }
-
 })
 
