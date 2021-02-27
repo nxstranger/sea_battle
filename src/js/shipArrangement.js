@@ -13,7 +13,7 @@ class ShipPool{
         this["3"] = 0
         this["4"] = 0
         this.isUser = isUser
-        this.limit = ["",4,3,2,1]
+        this.limit = [0,4,3,2,1]
     }
 
 
@@ -28,40 +28,43 @@ class ShipPool{
 
     updateCounter(ship){
         //ship value 1-4
-        // console.log('it update a counter')
-        let counterObj = document.getElementById(`counter-usr-${ship}`)
-        counterObj.innerText = this.limit[+ship] - +this[ship]
+        let counterValue = this.limit[+ship] - +this[ship]
+        document.getElementById(`counter-usr-${ship}`).innerText = `${counterValue}`
         if (this.checkLimit(ship)){
-            // console.log('update counter -> check limit')
             this.updateShipFrame(ship)
+            if (this.checkPoolIsFilled()){
+                // do something
+                console.log("checkPoolIsFilled")
+            }
         }
         // console.log(counterObj)
+
     }
 
     checkLimit(ship){
         //ship value 1-4
         // return true if limit for this type
         let limit = ["",4,3,2,1]
-        console.log('this[ship] === limit[+ship]')
-        console.log(this[ship])
-        console.log(limit[+ship])
         return this[ship] === limit[+ship];
     }
 
     updateShipFrame(ship){
         //ship value 1-4
-        console.log("update ship frame")
+        // console.log("update ship frame")
         let blockId = this.isUser ? `block-usr-${ship}`: `block-enm-${ship}`
         for (let objShip of document.getElementById(blockId).childNodes){
             // console.log("objShip")
             console.log(objShip)
-            // console.log(objShip.style.background = 'gray')
-            objShip.style.background = 'gray'
-            objShip.style.display = "none"
-            objShip.classList.remove('drag_n_drop')
+            objShip.firstChild.style.background = 'gray'
+            objShip.firstChild.classList.remove('drag_n_drop')
         }
     }
-
+    checkPoolIsFilled(){
+        return this["1"] === 4 &&
+               this["2"] === 3 &&
+               this["3"] === 2 &&
+               this["4"] === 1;
+    }
 
 }
 
@@ -115,7 +118,7 @@ function placeShipOnField(objShipInfo, cellObj){
             }
 
         }
-        console.log(cellSet)
+        // console.log(cellSet)
         return cellSet
     }
 
@@ -157,7 +160,7 @@ function placeShipOnField(objShipInfo, cellObj){
         for (let itemSet of cellSet){
             neighborsSet.delete(itemSet)
         }
-        console.log(neighborsSet)
+        // console.log(neighborsSet)
         return neighborsSet
     }
 
@@ -192,7 +195,7 @@ function placeShipOnField(objShipInfo, cellObj){
 
     // function entrypoint
     if (checkSize(shipType, shipLength, startCellCoordinatesObject)) {
-        console.log('checkSize')
+        // console.log('checkSize')
         let shipPositionCellSet = calcShipCells(shipType, shipLength, startCellCoordinatesObject)
         if (checkOccupiedCells(shipPositionCellSet)){
             return false
@@ -201,7 +204,7 @@ function placeShipOnField(objShipInfo, cellObj){
 
         addToMainSet(shipPositionCellSet)
         addToMainSet(shipNeighborsSet)
-        console.log(userFieldSet)
+        // console.log(userFieldSet)
 
         shipPlacement(shipPositionCellSet)
         return true
@@ -235,7 +238,7 @@ function dragAndDropHandler(ev){
 
     document.addEventListener('mousemove', onMouseMove);
 
-    movedElem.onmouseup = function(ev) {
+    movedElem.onmouseup = function() {
         document.removeEventListener('mousemove', onMouseMove);
         movedElem.onmouseup = null;
 
