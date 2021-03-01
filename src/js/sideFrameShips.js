@@ -20,7 +20,6 @@ function drawFrames(shipsArray, target, enemy=false) {
         shipsMenuShip.classList = "ships-menu__block"
         shipsMenuShip.id = !enemy ? `block-usr-${iterator}` : `block-enm-${iterator}`
 
-
         if (elem[0] > 1){
             drawShip(shipsMenuShip, elem, enemy, true)
         }
@@ -52,39 +51,13 @@ function drawShip(targetDiv, shipParam, enemy=false, direction=false){
     targetDiv.appendChild(wrapper)
 }
 
-// function drawVerticalShip(targetDiv, shipParam, enemy=false){
-//     let wrapper = document.createElement('div')
-//     wrapper.classList.add('ships-menu__wrapper_v')
-//
-//     let shipDiv = document.createElement('div')
-//     shipDiv.classList.add('ships-menu__ship_v', 'ship')
-//     if (!enemy) {
-//         shipDiv.id = `shipV${shipParam[0]}`
-//     }
-//     shipDiv.style.width = "2vw";
-//     shipDiv.style.height = (2 * shipParam[0]) + "vw";
-//
-//
-//     wrapper.appendChild(shipDiv)
-//     targetDiv.appendChild(wrapper)
-// }
-//
-// function drawHorizontalShip(targetDiv, shipParam, enemy=false){
-//     let wrapper = document.createElement('div')
-//     wrapper.classList.add('ships-menu__wrapper_h')
-//
-//     let shipDiv = document.createElement('div')
-//     shipDiv.classList.add('ships-menu__ship_h', 'ship')
-//     if (!enemy) {
-//         shipDiv.id = `shipH${shipParam[0]}`
-//     }
-//
-//     shipDiv.style.width = (2 * shipParam[0]) + "vw";
-//     shipDiv.style.height = "2vw";
-//
-//     wrapper.appendChild(shipDiv)
-//     targetDiv.appendChild(wrapper)
-// }
-
 drawFrames(ships, frameRightShips)
 drawFrames(ships, frameLeftShips, true)
+
+let autoPlacementShipButton = document.createElement("button");
+autoPlacementShipButton.innerText = "Auto"
+autoPlacementShipButton.id = "shipsAutoPlacement"
+autoPlacementShipButton.tabIndex = -1
+
+
+document.getElementById('header').appendChild(autoPlacementShipButton)

@@ -3,9 +3,132 @@
 
 // document.addEventListener('contextmenu', event => event.preventDefault());
 
-
 const userFieldSet = new Set()
 
+
+class CalculateOperator {
+    constructor(isUser) {
+        // user : boolean
+        this.alphabet = "zabcdefghij"
+        this.user = isUser ? "usr-" : "enm-"
+    }
+
+    calcShipCells(objShipInfo, targetObj) {
+        // return set of cells id required for placement ship
+
+        // console.log('objShipInfo')
+        // console.log(objShipInfo)
+        // console.log('targetObj')
+        // console.log(targetObj)
+        const shipType = objShipInfo[0]             // H or V
+        const shipLength = objShipInfo[1]           // 1-4
+
+        let startIndexX = +targetObj.id.slice(5)
+        let startIndexY = this.alphabet.indexOf(targetObj.id[4])
+        let cellSet = new Set()
+        for (let iter = 0; iter < shipLength; iter++){
+            let cellId = ""
+            switch (shipType){
+                case "H":
+                    cellId = this.user + this.alphabet[startIndexY] + (startIndexX + iter)
+                    break;
+                case "V":
+                    cellId = this.user + this.alphabet[startIndexY + iter] + (startIndexX)
+                    break;
+                default:
+                    alert("Ошибка в модуле shipArrangement")
+            }
+            if (cellId){
+                cellSet.add(cellId)
+            }
+        }
+        return cellSet
+    }
+
+    findNeighbors(cellSet){
+        // return neighborsSet of cellSet (ship)
+        let neighborsSet = new Set()
+        let xMin = 10
+        let xMax = 0
+        let yMin = 10
+        let yMax = 0
+        let cellId = ""
+        for (let elem of cellSet){
+            let cell = elem
+            cellSet.add(cell)
+
+            let cellLocate = {
+                "X": +cell.slice(5),                     // 1-10
+                "Y": this.alphabet.indexOf(cell[4])      // 1-10
+            }
+            xMin = xMin < cellLocate.X ? xMin : cellLocate.X
+            xMax = xMax > cellLocate.X ? xMax : cellLocate.X
+            yMin = yMin < cellLocate.Y ? yMin : cellLocate.Y
+            yMax = yMax > cellLocate.Y ? yMax : cellLocate.Y
+        }
+        let iterRange = {
+            "xStart":   xMin > 1 ? xMin - 1 : xMin,
+            "xEnd":     xMax < 10 ? xMax + 1 : xMax,
+            "yStart":   yMin > 1 ? yMin - 1 : yMin,
+            "yEnd":     yMax < 10 ? yMax + 1: yMax
+        }
+        // console.log(iterRange)
+        for (let x = iterRange.xStart; x <= iterRange.xEnd; x++){
+            for (let y = iterRange.yStart; y <= iterRange.yEnd; y++){
+                cellId = "usr-" + this.alphabet[y] + (x)
+                // cellId = document.getElementById(cellId)
+                neighborsSet.add(cellId)
+            }
+        }
+        for (let itemSet of cellSet){
+            neighborsSet.delete(itemSet)
+        }
+        // console.log(neighborsSet)
+        return neighborsSet
+    }
+
+    getRandomCoordinate(xMin, xMax, yMin, yMax){
+
+        let cX = Math.floor(xMin + Math.random() * (xMax + 1 - xMin))
+        let cY = this.alphabet[(Math.floor(yMin + Math.random() * (yMax + 1 - yMin)))]
+        return `${this.user}${cY}${cX}`
+    }
+
+    // coordinatesToId(xPos,yPos){
+    //     // args values interval: 1-10
+    //     // return string cellId like "usr-a10"
+    //     let yChar = this.alphabet[yPos]
+    //     return `${this.user}${yChar}${xPos}`
+    // }
+
+
+    addToMainSet(mainSet, subSet){
+        // add to userFieldSet elements of subSet
+        for(let elem of subSet){
+            mainSet.add(elem)
+        }
+    }
+
+    checkOccupiedCells(mainSet, subSet){
+        for (let elem of subSet){
+            if (mainSet.has(elem)) {
+                return true
+            }
+        }
+        return false
+    }
+
+    shipPlacement(cellSet){
+        console.log("ShipPlacement")
+        for (let elem of cellSet){
+            document.getElementById(elem).style.background = 'cyan'
+            console.log(document.getElementById(elem))
+        }
+    }
+}
+
+
+// shipArrangement
 class ShipPool{
     constructor(isUser){
         this["1"] = 0
@@ -14,15 +137,16 @@ class ShipPool{
         this["4"] = 0
         this.isUser = isUser
         this.limit = [0,4,3,2,1]
+        this.shipArray = []
+        this.addAutoPlacementListener()
     }
 
-
-    add(ship){
+    add(ship, shipObj){
         //ship value 1-4
-        // console.log('ship')
-        // console.log(ship)
         this[ship] = this[ship] + 1
-        // console.log(this)
+        this.shipArray.push(shipObj)
+        console.log(this.shipArray)
+
         this.updateCounter(ship)
     }
 
@@ -34,11 +158,13 @@ class ShipPool{
             this.updateShipFrame(ship)
             if (this.checkPoolIsFilled()){
                 // do something
+                document.getElementById('shipsAutoPlacement').remove()
+
+
+                //entrypoint to starting game
                 console.log("checkPoolIsFilled")
             }
         }
-        // console.log(counterObj)
-
     }
 
     checkLimit(ship){
@@ -50,15 +176,14 @@ class ShipPool{
 
     updateShipFrame(ship){
         //ship value 1-4
-        // console.log("update ship frame")
         let blockId = this.isUser ? `block-usr-${ship}`: `block-enm-${ship}`
         for (let objShip of document.getElementById(blockId).childNodes){
-            // console.log("objShip")
-            console.log(objShip)
+            // console.log(objShip)
             objShip.firstChild.style.background = 'gray'
             objShip.firstChild.classList.remove('drag_n_drop')
         }
     }
+
     checkPoolIsFilled(){
         return this["1"] === 4 &&
                this["2"] === 3 &&
@@ -66,9 +191,63 @@ class ShipPool{
                this["4"] === 1;
     }
 
+
+    generateShip(ship){
+        let shipParam = ((Math.random() < 0.5) ? "H" : "V") + ship
+        let maxCoordinateArray = (shipParam[0]==="H") ? [1, 10-ship, 1, 10] : [1, 10, 1, 10-ship]
+        let cellCoordinate = userOperator.getRandomCoordinate(...maxCoordinateArray)
+        console.log('cellCoordinates')
+        console.log(cellCoordinate)
+        let cellObj = document.getElementById(cellCoordinate)
+        return userOperator.calcShipCells(shipParam, cellObj)
+    }
+
+    placeShip(ship){
+        //ship value 1-4
+        let requiredCells = null
+        do {
+            requiredCells = this.generateShip(ship)
+        } while (userOperator.checkOccupiedCells(userFieldSet, requiredCells))
+        console.log("requiredCells")
+        console.log(requiredCells)
+        let shipNeighborsSet = userOperator.findNeighbors(requiredCells)
+        userOperator.addToMainSet(userFieldSet, requiredCells)
+        userOperator.addToMainSet(userFieldSet, shipNeighborsSet)
+        // console.log(userFieldSet)
+        userOperator.shipPlacement(requiredCells)
+        console.log(userFieldSet)
+        this.add(ship, requiredCells)
+    }
+
+    autoPlacement(){
+        console.log("autoPlacement")
+        for (let i = 1; i < 5; i++){
+            while (!this.checkLimit(i)){
+                console.log("this.checkLimit(i)")
+                console.log(this.checkLimit(i))
+                console.log(this)
+                console.log(i)
+                this.placeShip(i)
+
+                console.log(this.checkLimit(i))
+            }
+        }
+        console.log("complete")
+    }
+
+    addAutoPlacementListener(){
+        let button = document.getElementById('shipsAutoPlacement')
+        button.addEventListener("click", ()=>{
+            console.log("addAutoPlacementListener");
+            this.autoPlacement();
+        })
+    }
+
 }
 
+//user main object
 const userShipPool = new ShipPool(true)
+const userOperator =  new CalculateOperator(true)
 
 
 function placeShipOnField(objShipInfo, cellObj){
@@ -93,120 +272,21 @@ function placeShipOnField(objShipInfo, cellObj){
         }
     }
 
-    function calcShipCells(shipType, shipLength, targetObj) {
-        // shipType "H" / "V", ship length: int, targetObj: { "litY": char, "litX": int }
-        // return set of cells id required for placement ship
-
-        let startIndexX = targetObj.litX
-        let startIndexY = alphabet.indexOf(targetObj.litY)
-        let cellSet = new Set()
-        for (let iter = 0; iter < shipLength; iter++){
-            let cellId = ""
-            switch (shipType){
-                case "H":
-                    cellId = "usr-" + alphabet[startIndexY] + (startIndexX + iter)
-                    break;
-                case "V":
-                    cellId = "usr-" + alphabet[startIndexY + iter] + (startIndexX)
-
-                    break;
-                default:
-                    alert("Ошибка в модуле shipArrangement")
-            }
-            if (cellId){
-                cellSet.add(cellId)
-            }
-
-        }
-        // console.log(cellSet)
-        return cellSet
-    }
-
-    function findNeighbors(cellSet){
-        // return neighborsSet of cellSet (ship)
-        let neighborsSet = new Set()
-        let xMin = 10
-        let xMax = 0
-        let yMin = 10
-        let yMax = 0
-        let cellId = ""
-        for (let elem of cellSet){
-            let cell = elem
-            cellSet.add(cell)
-
-            let cellLocate = {
-                "X": +cell.slice(5),                // 1-10
-                "Y": alphabet.indexOf(cell[4])      // 1-10
-            }
-            xMin = xMin < cellLocate.X ? xMin : cellLocate.X
-            xMax = xMax > cellLocate.X ? xMax : cellLocate.X
-            yMin = yMin < cellLocate.Y ? yMin : cellLocate.Y
-            yMax = yMax > cellLocate.Y ? yMax : cellLocate.Y
-        }
-        let iterRange = {
-            "xStart":   xMin > 1 ? xMin - 1 : xMin,
-            "xEnd":     xMax < 10 ? xMax + 1 : xMax,
-            "yStart":   yMin > 1 ? yMin - 1 : yMin,
-            "yEnd":     yMax < 10 ? yMax + 1: yMax
-        }
-        // console.log(iterRange)
-        for (let x = iterRange.xStart; x <= iterRange.xEnd; x++){
-            for (let y = iterRange.yStart; y <= iterRange.yEnd; y++){
-                cellId = "usr-" + alphabet[y] + (x)
-                // cellId = document.getElementById(cellId)
-                neighborsSet.add(cellId)
-            }
-        }
-        for (let itemSet of cellSet){
-            neighborsSet.delete(itemSet)
-        }
-        // console.log(neighborsSet)
-        return neighborsSet
-    }
-
-    function addToMainSet(subSet){
-        // add to userFieldSet elements of subSet
-        for(let elem of subSet){
-            userFieldSet.add(elem)
-        }
-    }
-
-    function coordinatesToId(xPos,yPos){
-        // args values interval: 1-10
-        // return string cellId like "usr-a10"
-        let yChar = alphabet[yPos]
-        return `usr-${yChar}${xPos}`
-    }
-
-    function checkOccupiedCells(subSet){
-        for (let elem of subSet){
-            if (userFieldSet.has(elem)) {
-                return true
-            }
-        }
-        return false
-    }
-
-    function shipPlacement(cellSet){
-        for (let elem of cellSet){
-            document.getElementById(elem).style.background = 'cyan'
-        }
-    }
 
     // function entrypoint
     if (checkSize(shipType, shipLength, startCellCoordinatesObject)) {
         // console.log('checkSize')
-        let shipPositionCellSet = calcShipCells(shipType, shipLength, startCellCoordinatesObject)
-        if (checkOccupiedCells(shipPositionCellSet)){
+        let shipPositionCellSet = userOperator.calcShipCells(objShipInfo, cellObj)
+        if (userOperator.checkOccupiedCells(userFieldSet, shipPositionCellSet)){
             return false
         }
-        let shipNeighborsSet = findNeighbors(shipPositionCellSet)
+        let shipNeighborsSet = userOperator.findNeighbors(shipPositionCellSet)
 
-        addToMainSet(shipPositionCellSet)
-        addToMainSet(shipNeighborsSet)
+        userOperator.addToMainSet(userFieldSet, shipPositionCellSet)
+        userOperator.addToMainSet(userFieldSet, shipNeighborsSet)
         // console.log(userFieldSet)
 
-        shipPlacement(shipPositionCellSet)
+        userOperator.shipPlacement(shipPositionCellSet)
         return true
     }
 
@@ -255,7 +335,13 @@ function dragAndDropHandler(ev){
             targetObj.id &&
             (targetObj.closest('div[id]').id === "user-field")){
             if (placeShipOnField(shipInfo.slice(4), targetObj)){
-                userShipPool.add(shipInfo.slice(5))
+
+                // here need do someone for getting cells array which are occupied of ship
+
+
+                let cellSet = userOperator.calcShipCells(shipInfo.slice(4), targetObj)
+                console.log(cellSet)
+                userShipPool.add(shipInfo.slice(5), cellSet)
             }
         }
         // console.log("object drop")
