@@ -1,10 +1,7 @@
-// let userFieldArray = Array(10).fill(Array(10).fill(0))
-// console.log(userFieldArray)
-
 // document.addEventListener('contextmenu', event => event.preventDefault());
 
 const userFieldSet = new Set()
-
+const enemyFieldSet = new Set()
 
 class CalculateOperator {
     constructor(isUser) {
@@ -16,10 +13,6 @@ class CalculateOperator {
     calcShipCells(objShipInfo, targetObj) {
         // return set of cells id required for placement ship
 
-        // console.log('objShipInfo')
-        // console.log(objShipInfo)
-        // console.log('targetObj')
-        // console.log(targetObj)
         const shipType = objShipInfo[0]             // H or V
         const shipLength = objShipInfo[1]           // 1-4
 
@@ -72,10 +65,9 @@ class CalculateOperator {
             "yStart":   yMin > 1 ? yMin - 1 : yMin,
             "yEnd":     yMax < 10 ? yMax + 1: yMax
         }
-        // console.log(iterRange)
         for (let x = iterRange.xStart; x <= iterRange.xEnd; x++){
             for (let y = iterRange.yStart; y <= iterRange.yEnd; y++){
-                cellId = "usr-" + this.alphabet[y] + (x)
+                cellId = this.user + this.alphabet[y] + (x)
                 // cellId = document.getElementById(cellId)
                 neighborsSet.add(cellId)
             }
@@ -83,7 +75,6 @@ class CalculateOperator {
         for (let itemSet of cellSet){
             neighborsSet.delete(itemSet)
         }
-        // console.log(neighborsSet)
         return neighborsSet
     }
 
@@ -93,14 +84,6 @@ class CalculateOperator {
         let cY = this.alphabet[(Math.floor(yMin + Math.random() * (yMax + 1 - yMin)))]
         return `${this.user}${cY}${cX}`
     }
-
-    // coordinatesToId(xPos,yPos){
-    //     // args values interval: 1-10
-    //     // return string cellId like "usr-a10"
-    //     let yChar = this.alphabet[yPos]
-    //     return `${this.user}${yChar}${xPos}`
-    // }
-
 
     addToMainSet(mainSet, subSet){
         // add to userFieldSet elements of subSet
@@ -122,7 +105,6 @@ class CalculateOperator {
         console.log("ShipPlacement")
         for (let elem of cellSet){
             document.getElementById(elem).style.background = 'cyan'
-            console.log(document.getElementById(elem))
         }
     }
 }
@@ -130,22 +112,26 @@ class CalculateOperator {
 
 // shipArrangement
 class ShipPool{
-    constructor(isUser){
+    constructor(isUser, operator){
         this["1"] = 0
         this["2"] = 0
         this["3"] = 0
         this["4"] = 0
-        this.isUser = isUser
+        this.owner = (isUser) ? "usr-" : "enm-"
+        this.ownerFieldSet = (isUser) ? userFieldSet : enemyFieldSet
         this.limit = [0,4,3,2,1]
         this.shipArray = []
-        this.addAutoPlacementListener()
+        this.operator = operator
+        if (isUser){
+            this.addAutoPlacementListener()
+        }
     }
 
     add(ship, shipObj){
         //ship value 1-4
         this[ship] = this[ship] + 1
         this.shipArray.push(shipObj)
-        console.log(this.shipArray)
+        // console.log(this.shipArray)
 
         this.updateCounter(ship)
     }
@@ -153,16 +139,19 @@ class ShipPool{
     updateCounter(ship){
         //ship value 1-4
         let counterValue = this.limit[+ship] - +this[ship]
-        document.getElementById(`counter-usr-${ship}`).innerText = `${counterValue}`
+        document.getElementById(`counter-${this.owner}${ship}`).innerText = `${counterValue}`
         if (this.checkLimit(ship)){
             this.updateShipFrame(ship)
             if (this.checkPoolIsFilled()){
                 // do something
-                document.getElementById('shipsAutoPlacement').remove()
-
+                if (this.owner === "usr-") {
+                    document.getElementById('shipsAutoPlacement').remove()
+                    alert("Start game")
+                }
 
                 //entrypoint to starting game
                 console.log("checkPoolIsFilled")
+                console.log(this.shipArray)
             }
         }
     }
@@ -176,7 +165,7 @@ class ShipPool{
 
     updateShipFrame(ship){
         //ship value 1-4
-        let blockId = this.isUser ? `block-usr-${ship}`: `block-enm-${ship}`
+        let blockId = `block-${this.owner}${ship}`
         for (let objShip of document.getElementById(blockId).childNodes){
             // console.log(objShip)
             objShip.firstChild.style.background = 'gray'
@@ -195,11 +184,11 @@ class ShipPool{
     generateShip(ship){
         let shipParam = ((Math.random() < 0.5) ? "H" : "V") + ship
         let maxCoordinateArray = (shipParam[0]==="H") ? [1, 10-ship, 1, 10] : [1, 10, 1, 10-ship]
-        let cellCoordinate = userOperator.getRandomCoordinate(...maxCoordinateArray)
-        console.log('cellCoordinates')
-        console.log(cellCoordinate)
+        let cellCoordinate = this.operator.getRandomCoordinate(...maxCoordinateArray)
+        // console.log('cellCoordinates')
+        // console.log(cellCoordinate)
         let cellObj = document.getElementById(cellCoordinate)
-        return userOperator.calcShipCells(shipParam, cellObj)
+        return this.operator.calcShipCells(shipParam, cellObj)
     }
 
     placeShip(ship){
@@ -207,32 +196,33 @@ class ShipPool{
         let requiredCells = null
         do {
             requiredCells = this.generateShip(ship)
-        } while (userOperator.checkOccupiedCells(userFieldSet, requiredCells))
-        console.log("requiredCells")
-        console.log(requiredCells)
-        let shipNeighborsSet = userOperator.findNeighbors(requiredCells)
-        userOperator.addToMainSet(userFieldSet, requiredCells)
-        userOperator.addToMainSet(userFieldSet, shipNeighborsSet)
-        // console.log(userFieldSet)
-        userOperator.shipPlacement(requiredCells)
-        console.log(userFieldSet)
+        } while (this.operator.checkOccupiedCells(this.ownerFieldSet, requiredCells))
+        // console.log("requiredCells")
+        // console.log(requiredCells)
+        let shipNeighborsSet = this.operator.findNeighbors(requiredCells)
+        this.operator.addToMainSet(this.ownerFieldSet, requiredCells)
+        this.operator.addToMainSet(this.ownerFieldSet, shipNeighborsSet)
+        if (this.owner === 'usr-'){
+            this.operator.shipPlacement(requiredCells)
+        }
+        // console.log(this.ownerFieldSet)
         this.add(ship, requiredCells)
     }
 
     autoPlacement(){
-        console.log("autoPlacement")
+        // console.log("autoPlacement")
         for (let i = 1; i < 5; i++){
             while (!this.checkLimit(i)){
-                console.log("this.checkLimit(i)")
-                console.log(this.checkLimit(i))
-                console.log(this)
-                console.log(i)
+                // console.log("this.checkLimit(i)")
+                // console.log(this.checkLimit(i))
+                // console.log(this)
+                // console.log(i)
                 this.placeShip(i)
 
-                console.log(this.checkLimit(i))
+                // console.log(this.checkLimit(i))
             }
         }
-        console.log("complete")
+        console.log("autoPlacement complete")
     }
 
     addAutoPlacementListener(){
@@ -246,9 +236,12 @@ class ShipPool{
 }
 
 //user main object
-const userShipPool = new ShipPool(true)
 const userOperator =  new CalculateOperator(true)
+const userShipPool = new ShipPool(true, userOperator)
 
+const enemyOperator = new CalculateOperator(false)
+const enemyShipPool = new ShipPool(false, enemyOperator)
+enemyShipPool.autoPlacement()
 
 function placeShipOnField(objShipInfo, cellObj){
     const alphabet = "zabcdefghij"                    // z - unused, only for convenience
@@ -347,8 +340,6 @@ function dragAndDropHandler(ev){
         // console.log("object drop")
     };
 }
-
-
 
 for (let elem of document.getElementsByClassName("ship")){
     if (elem.id){

@@ -59,5 +59,12 @@ autoPlacementShipButton.innerText = "Auto"
 autoPlacementShipButton.id = "shipsAutoPlacement"
 autoPlacementShipButton.tabIndex = -1
 
+let startGameButton = document.createElement("button");
+startGameButton.innerText = "Start"
+startGameButton.id = "startGame"
+startGameButton.tabIndex = -1
+// startGameButton.style.display = "none"
+
 
 document.getElementById('header').appendChild(autoPlacementShipButton)
+document.getElementById('footer').appendChild(startGameButton)
