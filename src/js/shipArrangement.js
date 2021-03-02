@@ -271,13 +271,8 @@ function placeShipOnField(objShipInfo, cellObj){
 
     function checkSize(type, length, startCell){
         // check ship in field range
-        if ((type === "V" && alphabet.indexOf(startCell.litY) + +length <= 11) ||
-            (type === "H" && startCell.litX + +length <= 11))
-        {
-            return true
-        } else {
-            return false
-        }
+        return (type === "V" && alphabet.indexOf(startCell.litY) + +length <= 11) ||
+               (type === "H" && startCell.litX + +length <= 11);
     }
 
     // function entrypoint
@@ -346,7 +341,8 @@ function dragAndDropHandler(ev){
     };
 }
 
-document.body.addEventListener('mousedown', (ev)=>{
+let mainFrame = document.getElementById('mainFrame')
+mainFrame.addEventListener('mousedown', (ev)=>{
     if (arrangementStage){
         if (ev.target.classList.contains("drag_n_drop") && ev.target.style.position === "absolute") {
             // fix flying elem

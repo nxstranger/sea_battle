@@ -10,19 +10,23 @@ class Game{
         this.hotListAI = new Set()
         this.killCounterEnemy = 0
         this.killCounterUser = 0
+        this.previousAttackCell = ""
     }
 
     resetCounters(){
-        this.enemyPool["1"] = 0
-        this.enemyPool["2"] = 0
-        this.enemyPool["3"] = 0
-        this.enemyPool["4"] = 0
-
-        this.userPool["1"] = 0
-        this.userPool["2"] = 0
-        this.userPool["3"] = 0
-        this.userPool["4"] = 0
-
+        for (let i = 1; i < 5; i++){
+            this.enemyPool[i] = 0
+            this.userPool[i] = 0
+        }
+        // this.enemyPool["1"] = 0
+        // this.enemyPool["2"] = 0
+        // this.enemyPool["3"] = 0
+        // this.enemyPool["4"] = 0
+        //
+        // this.userPool["1"] = 0
+        // this.userPool["2"] = 0
+        // this.userPool["3"] = 0
+        // this.userPool["4"] = 0
     }
 
     takeDamageAndCheckDestroy(cellId, shipCells){
@@ -69,7 +73,14 @@ class Game{
         // isUser - selector for pool
         let pool = isUser ? this.enemyPool : this.userPool
         let result = this.checkCoordinate(cellIdName, pool)
-        document.getElementById(cellIdName).style.background = result ? 'orange': '#cccccc'
+        document.getElementById(cellIdName).style.background = result ? 'orange': '#888888'
+        if (this.previousAttackCell){
+            let previousAttackCellObject = document.getElementById(this.previousAttackCell)
+            if (previousAttackCellObject.style.background !== 'orange'){
+                document.getElementById(this.previousAttackCell).style.background = "#cccccc"
+            }
+            }
+        this.previousAttackCell = cellIdName
 
         pool.ownerFieldSet.add(cellIdName)
         if (result) {
