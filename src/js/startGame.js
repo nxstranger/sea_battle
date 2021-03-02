@@ -1,5 +1,3 @@
-
-
 class Game{
     constructor(userPool, enemyPool, stepDelay) {
         this.userPool = userPool
@@ -8,18 +6,24 @@ class Game{
         this.stepToggle = true
         this.endGame = false
         this.addUserClickListener()
+        this.resetCounters()
+        this.hotListAI = new Set()
+        this.killCounterEnemy = 0
+        this.killCounterUser = 0
     }
 
-    // requestType(request){
-    //     switch (request){
-    //         case 1:
-    //             return "miss";
-    //         case 2:
-    //             return "hit";
-    //         case 3:
-    //             return "destroyed";
-    //     }
-    // }
+    resetCounters(){
+        this.enemyPool["1"] = 0
+        this.enemyPool["2"] = 0
+        this.enemyPool["3"] = 0
+        this.enemyPool["4"] = 0
+
+        this.userPool["1"] = 0
+        this.userPool["2"] = 0
+        this.userPool["3"] = 0
+        this.userPool["4"] = 0
+
+    }
 
     takeDamageAndCheckDestroy(cellId, shipCells){
         shipCells.delete(cellId)
@@ -38,20 +42,26 @@ class Game{
         return null
     }
 
+    updateFieldCounterGame(isUser, shipLength){
+        let pool = isUser ? this.enemyPool: this.userPool
+        pool.add(shipLength)
+
+    }
+
     shipKilledUpdateField(shipObj, fieldset){
 
         for (let elem of shipObj[1]){
             document.getElementById(elem).style.background = "#cccccc"
             fieldset.add(elem)
         }
+        this.updateFieldCounterGame(this.stepToggle, shipObj[2])
     }
 
 
     checkDuplicateAttack(cellId, pool){
         // if this cell already in pool, return true, else false
-        console.log(pool.ownerFieldSet)
         if (pool.ownerFieldSet.has(cellId)){
-            console.log("duplicate attack")
+            // console.log("duplicate attack")
             return true
         }
         return false
@@ -62,56 +72,54 @@ class Game{
         // isUser - selector for pool
         let pool = isUser ? this.enemyPool : this.userPool
         let result = this.checkCoordinate(cellIdName, pool)
-        console.log("result")
-        console.log(result)
         document.getElementById(cellIdName).style.background = result ? 'orange': '#cccccc'
 
         pool.ownerFieldSet.add(cellIdName)
         if (result) {
-
-            //make request type and handle request
-
             if (this.takeDamageAndCheckDestroy(cellIdName, result[0])){
                 this.shipKilledUpdateField(result, pool.ownerFieldSet)
+
+                //Endpoint
+                isUser ? this.killCounterEnemy++ : this.killCounterUser++
+                if (this.killCounterUser === 10 || this.killCounterEnemy === 10) {
+                   this.endGame = true
+                    let winner = this.killCounterUser === 10 ? "AI win!" : "User win!"
+                    //endpoint
+                    setTimeout(()=> {
+                        alert(winner)
+                    },500)
+                }
+                if (!isUser && !this.endGame) {
+                    this.hotListAI.clear()
+                    this.actionAI() }
+            } else {
+                if (!isUser) { this.actionAI(cellIdName) }
             }
 
-            // this.makeAMove()
-            console.log("take damage")
-            if (!isUser) {
-                this.AIAction()
-            }
         } else {
             this.stepToggle = !this.stepToggle
             if (isUser) {
-                this.AIAction()
+                this.actionAI()
             }
         }
-
-        // make action for miss
-
     }
 
     checkUserClick(ev){
         //check user click event
-        // console.log(ev)
-        if (ev.target.id.slice(0,3) === 'enm'){
+        if (ev.target.id.slice(0,3) === 'enm' && !this.endGame){
             if (!this.checkDuplicateAttack(ev.target.id, this.enemyPool)){
                 this.makeAMove(ev.target.id)
-                console.log('checkUserClick')
             }
         }
     }
 
     makeAMove(cellId){
-        console.log("cellId")
-        console.log(cellId)
         if (this.stepToggle && !this.endGame){
-            // document.getElementById("header").innerText = "user move"
-            console.log("user action")
+            // console.log("user action")
             this.attack(this.stepToggle, cellId)
         } else if (!this.stepToggle && !this.endGame) {
             this.attack(this.stepToggle, cellId)
-            console.log("enemy action")
+            // console.log("enemy action")
         } else {
             console.log("END GAME")
         }
@@ -122,20 +130,63 @@ class Game{
         let listener = document.getElementById("enemy-field")
         listener.addEventListener('click', (ev)=>{
             if (this.stepToggle && !this.endGame) {
-                console.log("user click")
                 this.checkUserClick(ev)
             }
         })
     }
 
-    AIAction(){
+    makeAICellHotList (successCell){
+        let xPos = +successCell.slice(5)
+        let yPos = this.userPool.operator.alphabet.indexOf(successCell[4])
+        // DRY ??
+        //left
+        if (xPos > 1 && xPos <= 10){
+            let cellIdName = `usr-${this.userPool.operator.alphabet[yPos]}${xPos-1}`
+            this.hotListAI.add(cellIdName)
+        }
+        //right
+        if (xPos >= 1 && xPos < 10){
+            let cellIdName = `usr-${this.userPool.operator.alphabet[yPos]}${xPos+1}`
+            this.hotListAI.add(cellIdName)
+        }
+        //top
+        if (yPos > 1 && yPos <= 10){
+            let cellIdName = `usr-${this.userPool.operator.alphabet[yPos-1]}${xPos}`
+            this.hotListAI.add(cellIdName)
+        }
+        //bottom
+        if (yPos >= 1 && yPos < 10){
+            let cellIdName = `usr-${this.userPool.operator.alphabet[yPos+1]}${xPos}`
+            this.hotListAI.add(cellIdName)
+        }
+        for (let elem of this.hotListAI){
+            if (this.userPool.ownerFieldSet.has(elem)){
+                this.hotListAI.delete(elem)
+            }
+        }
+        // console.log(this.hotListAI)
+    }
+
+    getCellFromHotList(){
+        let arrFromSet = Array.from(this.hotListAI)
+        let popItem = arrFromSet.pop()
+        this.hotListAI.delete(popItem)
+        return popItem
+    }
+
+    actionAI(previousTarget= null) {
         let attackedCell = ""
-        do {
-            attackedCell = userShipPool.operator.getRandomCoordinate()
-        } while (this.checkDuplicateAttack(attackedCell, this.userPool))
-        console.log("AI attackedCell")
-        console.log(attackedCell)
-        this.makeAMove(attackedCell)
+        if (previousTarget) {
+            this.makeAICellHotList(previousTarget)
+            attackedCell = this.getCellFromHotList()
+        } else if (this.hotListAI.size) {
+            attackedCell = this.getCellFromHotList()
+        } else {
+            do {
+                attackedCell = userShipPool.operator.getRandomCoordinate()
+            } while (this.checkDuplicateAttack(attackedCell, this.userPool))
+        }
+        setTimeout(()=>{this.makeAMove(attackedCell)}, this.stepDelay)
     }
 
 }

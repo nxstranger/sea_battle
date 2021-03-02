@@ -4,6 +4,12 @@
     --field-cell-border: 1px solid #808080;
 }
 
+#startGameButton, #shipsAutoPlacement{
+    height: 6vh;
+    width: 10vw;
+
+}
+
 body {
     display: flex;
     flex-direction: column;
