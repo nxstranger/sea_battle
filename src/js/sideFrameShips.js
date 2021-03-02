@@ -71,3 +71,10 @@ startGameButton.style.display = "none"
 
 document.getElementById('header').appendChild(autoPlacementShipButton)
 document.getElementById('footer').appendChild(startGameButton)
+
+
+for (let elem of document.getElementsByClassName("ship")){
+    if (elem.id){
+        elem.classList.add('drag_n_drop')
+    }
+}

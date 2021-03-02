@@ -60,11 +60,8 @@ class Game{
 
     checkDuplicateAttack(cellId, pool){
         // if this cell already in pool, return true, else false
-        if (pool.ownerFieldSet.has(cellId)){
-            // console.log("duplicate attack")
-            return true
-        }
-        return false
+        return !!pool.ownerFieldSet.has(cellId);
+
     }
 
     attack(isUser, cellIdName) {

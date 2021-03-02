@@ -1,4 +1,4 @@
-// document.addEventListener('contextmenu', event => event.preventDefault());
+document.addEventListener('contextmenu', event => event.preventDefault());
 let arrangementStage = true
 
 function startGame(userPool, enemyPool){
@@ -149,7 +149,7 @@ class ShipPool{
         }
     }
 
-    add(ship, shipSet,neighborSet){
+    add(ship, shipSet, neighborSet){
         //ship value 1-4
         this[ship] = this[ship] + 1
         if (arrangementStage){
@@ -209,9 +209,9 @@ class ShipPool{
 
 
     generateShip(ship){
-        let shipParam = ((Math.random() < 0.5) ? "H" : "V") + ship
+        let shipParam = ((Math.random() < 0.5) ? "H" : "V") + ship                                  //h3
         let maxCoordinateArray = (shipParam[0]==="H") ? [1, 10-ship, 1, 10] : [1, 10, 1, 10-ship]
-        let cellCoordinate = this.operator.getRandomCoordinate(...maxCoordinateArray)
+        let cellCoordinate = this.operator.getRandomCoordinate(...maxCoordinateArray)               // d6
         let cellObj = document.getElementById(cellCoordinate)
         return this.operator.calcShipCells(shipParam, cellObj)
     }
@@ -274,10 +274,8 @@ function placeShipOnField(objShipInfo, cellObj){
         if ((type === "V" && alphabet.indexOf(startCell.litY) + +length <= 11) ||
             (type === "H" && startCell.litX + +length <= 11))
         {
-            // console.log("size OK")
             return true
         } else {
-            // console.log("size error")
             return false
         }
     }
@@ -341,16 +339,11 @@ function dragAndDropHandler(ev){
                 // here need do someone for getting cells array which are occupied of ship
                 let cellSet = userOperator.calcShipCells(shipInfo.slice(4), targetObj)
                 console.log(cellSet)
-                userShipPool.add(shipInfo.slice(5), cellSet)
+                let neighborSet = userOperator.findNeighbors(cellSet)
+                userShipPool.add(shipInfo.slice(5), cellSet, neighborSet)
             }
         }
     };
-}
-
-for (let elem of document.getElementsByClassName("ship")){
-    if (elem.id){
-        elem.classList.add('drag_n_drop')
-    }
 }
 
 document.body.addEventListener('mousedown', (ev)=>{
