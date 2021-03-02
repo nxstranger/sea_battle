@@ -7,7 +7,7 @@ function writeField(drawTarget, enemy=false){
         tableField.appendChild(document.createElement('tr'))
         for (let j = 0; j < 11; j++){
             let tableCell = document.createElement('td')
-            tableCell.classList = "field__table-cell"
+            tableCell.classList.add("field__table-cell")
 
             if (i>0 && j>0) {
                 tableCell.id = (!enemy ? "usr-" : "enm-" )+ `${cellName[i]}${j}`

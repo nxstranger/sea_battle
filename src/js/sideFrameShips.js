@@ -4,20 +4,21 @@ let ships = [ [4, 1], [3, 2], [2, 3], [1, 4] ]
 
 function drawFrames(shipsArray, target, enemy=false) {
     let iterator = 5
+    target.innerHTML = ""
     for (let elem of shipsArray){
         iterator--
         // console.log(elem)
         let shipsMenuElement = document.createElement('div')
-        shipsMenuElement.classList = "ships-menu__main";
+        shipsMenuElement.classList.add("ships-menu__main");
         (enemy) ? shipsMenuElement.classList.add("direction_row_reverse"): shipsMenuElement.classList.add("direction_row")
 
         let shipsMenuCounter = document.createElement('div')
-        shipsMenuCounter.classList = "ships-menu__counter"
+        shipsMenuCounter.classList.add("ships-menu__counter")
         shipsMenuCounter.id = !enemy ? `counter-usr-${iterator}` : `counter-enm-${iterator}`
         shipsMenuCounter.innerText = elem[1]
 
         let shipsMenuShip = document.createElement('div')
-        shipsMenuShip.classList = "ships-menu__block"
+        shipsMenuShip.classList.add("ships-menu__block")
         shipsMenuShip.id = !enemy ? `block-usr-${iterator}` : `block-enm-${iterator}`
 
         if (elem[0] > 1){
@@ -34,6 +35,7 @@ function drawFrames(shipsArray, target, enemy=false) {
 
 function drawShip(targetDiv, shipParam, enemy=false, direction=false){
     // direction false - horizontal / true - vertical
+
     let wrapper = document.createElement('div')
     wrapper.classList.add(direction ? 'ships-menu__wrapper_v' : 'ships-menu__wrapper_h')
 
@@ -48,11 +50,13 @@ function drawShip(targetDiv, shipParam, enemy=false, direction=false){
     shipDiv.style.height = direction ? (2 * shipParam[0]) + "vw" : "2vw";
 
     wrapper.appendChild(shipDiv)
+
     targetDiv.appendChild(wrapper)
 }
 
 drawFrames(ships, frameRightShips)
 drawFrames(ships, frameLeftShips, true)
+
 
 let autoPlacementShipButton = document.createElement("button");
 autoPlacementShipButton.innerText = "Auto"
@@ -61,10 +65,9 @@ autoPlacementShipButton.tabIndex = -1
 
 let startGameButton = document.createElement("button");
 startGameButton.innerText = "Start"
-startGameButton.id = "startGame"
+startGameButton.id = "startGameButton"
 startGameButton.tabIndex = -1
-// startGameButton.style.display = "none"
-
+startGameButton.style.display = "none"
 
 document.getElementById('header').appendChild(autoPlacementShipButton)
 document.getElementById('footer').appendChild(startGameButton)

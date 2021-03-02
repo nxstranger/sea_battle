@@ -1,7 +1,30 @@
 // document.addEventListener('contextmenu', event => event.preventDefault());
+let arrangementStage = true
 
-const userFieldSet = new Set()
-const enemyFieldSet = new Set()
+function startGame(userPool, enemyPool){
+    let theGame = new Game(userPool, enemyPool, 500)
+    document.getElementById('startGameButton').style.display = "none"
+    theGame.makeAMove()
+}
+
+function preStart(){
+    function updateFields(tag){
+        for (let i = 1; i < 5; i++){
+            document.getElementById(`counter-${tag}${i}`).innerText = (5 - i).toString()
+            let blockId = `block-${tag}${i}`
+            // console.log(blockId)
+            for (let objShip of document.getElementById(blockId).childNodes){
+                // console.log(objShip)
+                objShip.firstChild.style.background = 'darkblue'
+            }
+        }
+    }
+    updateFields('usr-')
+    updateFields('enm-')
+    userFieldSet.clear()
+    enemyFieldSet.clear()
+    startGame(userShipPool, enemyShipPool)
+}
 
 class CalculateOperator {
     constructor(isUser) {
@@ -109,16 +132,15 @@ class CalculateOperator {
     }
 }
 
-
 // shipArrangement
 class ShipPool{
-    constructor(isUser, operator){
+    constructor(isUser, operator, fieldSet){
         this["1"] = 0
         this["2"] = 0
         this["3"] = 0
         this["4"] = 0
         this.owner = (isUser) ? "usr-" : "enm-"
-        this.ownerFieldSet = (isUser) ? userFieldSet : enemyFieldSet
+        this.ownerFieldSet = fieldSet
         this.limit = [0,4,3,2,1]
         this.shipArray = []
         this.operator = operator
@@ -130,7 +152,7 @@ class ShipPool{
     add(ship, shipObj){
         //ship value 1-4
         this[ship] = this[ship] + 1
-        this.shipArray.push(shipObj)
+        this.shipArray.push([shipObj, shipObj[0], ship])
         // console.log(this.shipArray)
 
         this.updateCounter(ship)
@@ -145,11 +167,18 @@ class ShipPool{
             if (this.checkPoolIsFilled()){
                 // do something
                 if (this.owner === "usr-") {
+
+                    //entrypoint to starting game
                     document.getElementById('shipsAutoPlacement').remove()
-                    alert("Start game")
+                    document.getElementById('startGameButton').style.display = "inline-block"
+
+                    document.getElementById('startGameButton').onclick = ()=>{
+                        console.log("prepare for battle")
+                        arrangementStage = false
+                        preStart()
+                    }
                 }
 
-                //entrypoint to starting game
                 console.log("checkPoolIsFilled")
                 console.log(this.shipArray)
             }
@@ -205,7 +234,6 @@ class ShipPool{
         if (this.owner === 'usr-'){
             this.operator.shipPlacement(requiredCells)
         }
-        // console.log(this.ownerFieldSet)
         this.add(ship, requiredCells)
     }
 
@@ -213,13 +241,7 @@ class ShipPool{
         // console.log("autoPlacement")
         for (let i = 1; i < 5; i++){
             while (!this.checkLimit(i)){
-                // console.log("this.checkLimit(i)")
-                // console.log(this.checkLimit(i))
-                // console.log(this)
-                // console.log(i)
                 this.placeShip(i)
-
-                // console.log(this.checkLimit(i))
             }
         }
         console.log("autoPlacement complete")
@@ -228,20 +250,23 @@ class ShipPool{
     addAutoPlacementListener(){
         let button = document.getElementById('shipsAutoPlacement')
         button.addEventListener("click", ()=>{
-            console.log("addAutoPlacementListener");
             this.autoPlacement();
         })
     }
 
 }
 
-//user main object
+//user main objects
+const userFieldSet = new Set()
 const userOperator =  new CalculateOperator(true)
-const userShipPool = new ShipPool(true, userOperator)
+const userShipPool = new ShipPool(true, userOperator, userFieldSet)
 
+//enemy main objects
+const enemyFieldSet = new Set()
 const enemyOperator = new CalculateOperator(false)
-const enemyShipPool = new ShipPool(false, enemyOperator)
+const enemyShipPool = new ShipPool(false, enemyOperator, enemyFieldSet)
 enemyShipPool.autoPlacement()
+
 
 function placeShipOnField(objShipInfo, cellObj){
     const alphabet = "zabcdefghij"                    // z - unused, only for convenience
@@ -265,7 +290,6 @@ function placeShipOnField(objShipInfo, cellObj){
         }
     }
 
-
     // function entrypoint
     if (checkSize(shipType, shipLength, startCellCoordinatesObject)) {
         // console.log('checkSize')
@@ -274,11 +298,8 @@ function placeShipOnField(objShipInfo, cellObj){
             return false
         }
         let shipNeighborsSet = userOperator.findNeighbors(shipPositionCellSet)
-
         userOperator.addToMainSet(userFieldSet, shipPositionCellSet)
         userOperator.addToMainSet(userFieldSet, shipNeighborsSet)
-        // console.log(userFieldSet)
-
         userOperator.shipPlacement(shipPositionCellSet)
         return true
     }
@@ -286,19 +307,15 @@ function placeShipOnField(objShipInfo, cellObj){
 }
 
 function dragAndDropHandler(ev){
-    // console.log(ev.path[0])
-    // console.log(ev)
-
     ev.preventDefault()
-    let movedElem = ev.path[0].cloneNode(false)
-    let shiftY = ev.clientY - ev.path[0].getBoundingClientRect().top;
-    let shiftX = ev.clientX - ev.path[0].getBoundingClientRect().left;
+
+    let movedElem = ev.target.cloneNode(false)
+    let shiftY = ev.clientY - ev.target.getBoundingClientRect().top;
+    let shiftX = ev.clientX - ev.target.getBoundingClientRect().left;
     movedElem.style.position = "absolute"
     movedElem.style.top = ev.pageY - shiftY  + 'px'
     movedElem.style.left = ev.pageX - shiftX + 'px'
     document.body.appendChild(movedElem)
-
-    // console.log(`${ev.path[0].getBoundingClientRect().left} ${ev.path[0].getBoundingClientRect().top}`)
 
     function moveAt(pageX, pageY) {
         movedElem.style.top = pageY - shiftY + 'px';
@@ -330,14 +347,11 @@ function dragAndDropHandler(ev){
             if (placeShipOnField(shipInfo.slice(4), targetObj)){
 
                 // here need do someone for getting cells array which are occupied of ship
-
-
                 let cellSet = userOperator.calcShipCells(shipInfo.slice(4), targetObj)
                 console.log(cellSet)
                 userShipPool.add(shipInfo.slice(5), cellSet)
             }
         }
-        // console.log("object drop")
     };
 }
 
@@ -348,12 +362,13 @@ for (let elem of document.getElementsByClassName("ship")){
 }
 
 document.body.addEventListener('mousedown', (ev)=>{
-    if (ev.path[0].classList.contains("drag_n_drop") && ev.path[0].style.position === "absolute") {
-        // fix flying elem
-        ev.path[0].remove()
-    } else if (ev.path[0].classList.contains("drag_n_drop")) {
-        // console.log("object dragstart ")
-        dragAndDropHandler(ev)
+    if (arrangementStage){
+        if (ev.target.classList.contains("drag_n_drop") && ev.target.style.position === "absolute") {
+            // fix flying elem
+            ev.target.remove()
+        } else if (ev.target.classList.contains("drag_n_drop")) {
+            // console.log("object dragstart ")
+            dragAndDropHandler(ev)
+        }
     }
 })
-
