@@ -4,7 +4,7 @@ let arrangementStage = true
 function startGame(userPool, enemyPool){
     let theGame = new Game(userPool, enemyPool, 500)
     document.getElementById('startGameButton').style.display = "none"
-
+    theGame.addUserClickListener()
 }
 
 function preStart(){
@@ -167,18 +167,15 @@ class ShipPool{
         document.getElementById(`counter-${this.owner}${ship}`).innerText = `${counterValue}`
         if (this.checkLimit(ship)){
             this.updateShipFrame(ship)
-            if (this.checkPoolIsFilled() && arrangementStage){
-                // do something
-                if (this.owner === "usr-") {
-                    //entrypoint to starting game
-                    document.getElementById('shipsAutoPlacement').remove()
-                    document.getElementById('startGameButton').style.display = "inline-block"
+            if (this.checkPoolIsFilled() && arrangementStage && this.owner === "usr-"){
+                //entrypoint to starting game
+                document.getElementById('shipsAutoPlacement').remove()
+                document.getElementById('startGameButton').style.display = "inline-block"
 
-                    document.getElementById('startGameButton').onclick = ()=>{
-                        console.log("prepare for battle")
-                        arrangementStage = false
-                        preStart()
-                    }
+                document.getElementById('startGameButton').onclick = ()=>{
+                    console.log("prepare for battle")
+                    arrangementStage = false
+                    preStart()
                 }
             }
         }
@@ -187,7 +184,7 @@ class ShipPool{
     checkLimit(ship){
         //ship value 1-4
         // return true if limit for this type
-        let limit = ["",4,3,2,1]
+        let limit = ["", 4, 3, 2, 1]
         return this[ship] === limit[+ship];
     }
 
@@ -257,7 +254,7 @@ const userShipPool = new ShipPool(true, userOperator, userFieldSet)
 const enemyFieldSet = new Set()
 const enemyOperator = new CalculateOperator(false)
 const enemyShipPool = new ShipPool(false, enemyOperator, enemyFieldSet)
-enemyShipPool.autoPlacement()
+
 
 
 function placeShipOnField(objShipInfo, cellObj){
@@ -353,3 +350,5 @@ mainFrame.addEventListener('mousedown', (ev)=>{
         }
     }
 })
+
+enemyShipPool.autoPlacement()

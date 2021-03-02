@@ -1,6 +1,6 @@
 let frameRightShips = document.getElementById("left-ships")
 let frameLeftShips = document.getElementById("right-ships")
-let ships = [ [4, 1], [3, 2], [2, 3], [1, 4] ]
+let shipsTypeAndLimit = [ [4, 1], [3, 2], [2, 3], [1, 4] ]
 
 function drawFrames(shipsArray, target, enemy=false) {
     let iterator = 5
@@ -50,28 +50,11 @@ function drawShip(targetDiv, shipParam, enemy=false, direction=false){
     shipDiv.style.height = direction ? (2 * shipParam[0]) + "vw" : "2vw";
 
     wrapper.appendChild(shipDiv)
-
     targetDiv.appendChild(wrapper)
 }
 
-drawFrames(ships, frameRightShips)
-drawFrames(ships, frameLeftShips, true)
-
-
-let autoPlacementShipButton = document.createElement("button");
-autoPlacementShipButton.innerText = "Auto"
-autoPlacementShipButton.id = "shipsAutoPlacement"
-autoPlacementShipButton.tabIndex = -1
-
-let startGameButton = document.createElement("button");
-startGameButton.innerText = "Start"
-startGameButton.id = "startGameButton"
-startGameButton.tabIndex = -1
-startGameButton.style.display = "none"
-
-document.getElementById('header').appendChild(autoPlacementShipButton)
-document.getElementById('footer').appendChild(startGameButton)
-
+drawFrames(shipsTypeAndLimit, frameRightShips)
+drawFrames(shipsTypeAndLimit, frameLeftShips, true)
 
 for (let elem of document.getElementsByClassName("ship")){
     if (elem.id){

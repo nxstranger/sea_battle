@@ -5,12 +5,11 @@ class Game{
         this.stepDelay = stepDelay
         this.stepToggle = true
         this.endGame = false
-        this.addUserClickListener()
-        this.resetCounters()
         this.hotListAI = new Set()
         this.killCounterEnemy = 0
         this.killCounterUser = 0
         this.previousAttackCell = ""
+        this.resetCounters()
     }
 
     resetCounters(){
@@ -18,15 +17,6 @@ class Game{
             this.enemyPool[i] = 0
             this.userPool[i] = 0
         }
-        // this.enemyPool["1"] = 0
-        // this.enemyPool["2"] = 0
-        // this.enemyPool["3"] = 0
-        // this.enemyPool["4"] = 0
-        //
-        // this.userPool["1"] = 0
-        // this.userPool["2"] = 0
-        // this.userPool["3"] = 0
-        // this.userPool["4"] = 0
     }
 
     takeDamageAndCheckDestroy(cellId, shipCells){
