@@ -21,8 +21,10 @@ class Game{
     //     }
     // }
 
-    takeDamage(cellId, shipCells){
+    takeDamageAndCheckDestroy(cellId, shipCells){
         shipCells.delete(cellId)
+        return shipCells.size === 0;
+
     }
 
     checkCoordinate(cellId, ownerPool){
@@ -30,11 +32,20 @@ class Game{
         // ownerPool : class pool object attacked user/enemy
         for (let elem of ownerPool.shipArray){
             if (elem[0].has(cellId)){
-                return elem[0]
+                return elem
             }
         }
         return null
     }
+
+    shipKilledUpdateField(shipObj, fieldset){
+
+        for (let elem of shipObj[1]){
+            document.getElementById(elem).style.background = "#cccccc"
+            fieldset.add(elem)
+        }
+    }
+
 
     checkDuplicateAttack(cellId, pool){
         // if this cell already in pool, return true, else false
@@ -60,14 +71,24 @@ class Game{
 
             //make request type and handle request
 
-            this.takeDamage(cellIdName, result)
+            if (this.takeDamageAndCheckDestroy(cellIdName, result[0])){
+                this.shipKilledUpdateField(result, pool.ownerFieldSet)
+            }
 
-
+            // this.makeAMove()
             console.log("take damage")
+            if (!isUser) {
+                this.AIAction()
+            }
+        } else {
+            this.stepToggle = !this.stepToggle
+            if (isUser) {
+                this.AIAction()
+            }
         }
 
         // make action for miss
-        this.makeAMove()
+
     }
 
     checkUserClick(ev){
@@ -75,19 +96,24 @@ class Game{
         // console.log(ev)
         if (ev.target.id.slice(0,3) === 'enm'){
             if (!this.checkDuplicateAttack(ev.target.id, this.enemyPool)){
-                this.attack(true, ev.target.id)
+                this.makeAMove(ev.target.id)
                 console.log('checkUserClick')
             }
         }
     }
 
-    makeAMove(){
-        if (this.stepToggle){
+    makeAMove(cellId){
+        console.log("cellId")
+        console.log(cellId)
+        if (this.stepToggle && !this.endGame){
             // document.getElementById("header").innerText = "user move"
             console.log("user action")
-
-        } else {
+            this.attack(this.stepToggle, cellId)
+        } else if (!this.stepToggle && !this.endGame) {
+            this.attack(this.stepToggle, cellId)
             console.log("enemy action")
+        } else {
+            console.log("END GAME")
         }
     }
 
@@ -95,11 +121,21 @@ class Game{
         //init listener, do action only if this.stepToggle true
         let listener = document.getElementById("enemy-field")
         listener.addEventListener('click', (ev)=>{
-            if (this.stepToggle) {
+            if (this.stepToggle && !this.endGame) {
                 console.log("user click")
                 this.checkUserClick(ev)
             }
         })
+    }
+
+    AIAction(){
+        let attackedCell = ""
+        do {
+            attackedCell = userShipPool.operator.getRandomCoordinate()
+        } while (this.checkDuplicateAttack(attackedCell, this.userPool))
+        console.log("AI attackedCell")
+        console.log(attackedCell)
+        this.makeAMove(attackedCell)
     }
 
 }

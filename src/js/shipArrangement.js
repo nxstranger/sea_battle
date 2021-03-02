@@ -4,7 +4,7 @@ let arrangementStage = true
 function startGame(userPool, enemyPool){
     let theGame = new Game(userPool, enemyPool, 500)
     document.getElementById('startGameButton').style.display = "none"
-    theGame.makeAMove()
+
 }
 
 function preStart(){
@@ -101,7 +101,7 @@ class CalculateOperator {
         return neighborsSet
     }
 
-    getRandomCoordinate(xMin, xMax, yMin, yMax){
+    getRandomCoordinate(xMin= 1, xMax = 10, yMin = 1, yMax = 10){
 
         let cX = Math.floor(xMin + Math.random() * (xMax + 1 - xMin))
         let cY = this.alphabet[(Math.floor(yMin + Math.random() * (yMax + 1 - yMin)))]
@@ -149,10 +149,11 @@ class ShipPool{
         }
     }
 
-    add(ship, shipObj){
+    add(ship, shipSet,neighborSet){
         //ship value 1-4
         this[ship] = this[ship] + 1
-        this.shipArray.push([shipObj, shipObj[0], ship])
+
+        this.shipArray.push([shipSet, neighborSet])
         // console.log(this.shipArray)
 
         this.updateCounter(ship)
@@ -234,7 +235,7 @@ class ShipPool{
         if (this.owner === 'usr-'){
             this.operator.shipPlacement(requiredCells)
         }
-        this.add(ship, requiredCells)
+        this.add(ship, requiredCells, shipNeighborsSet)
     }
 
     autoPlacement(){
